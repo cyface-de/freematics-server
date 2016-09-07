@@ -17,6 +17,7 @@ import java.util.Map;
 
 /**
  * <p>
+ * Class for an object managing the currently active channels on the server.
  * </p>
  *
  * @author Klemens Muthmann
@@ -25,26 +26,58 @@ import java.util.Map;
  */
 @Component
 public class Channels {
-    private final Map<Integer,Channel> activeChannels;
+    /**
+     * <p>
+     * Mapping from the channel identifier to the channel object for all the active channels.
+     * </p>
+     */
+    private final Map<Integer, Channel> activeChannels;
 
+    /**
+     * <p>
+     * Creates a new completely initialized object of this class.
+     * </p>
+     */
     public Channels() {
         this.activeChannels = Collections.synchronizedMap(new HashMap<>());
     }
 
+    /**
+     * <p>
+     * Provides the next free channel. {@link Channel} identifiers are assigned as increasing number. If one in the
+     * middle is removed this method will find the missing value and assign it.
+     * </p>
+     * <p>
+     * This method is thread safe to avoid duplication for channel identifiers.
+     * </p>
+     *
+     * @param vehicleIdentificationNumber The vehicle identification number for the new {@link Channel}.
+     * @return The newly created {@link Channel}.
+     */
     public synchronized Channel getNextFreeChannel(final String vehicleIdentificationNumber) {
         int i = 0;
-        while(activeChannels.get(i)!=null) {
+        while (activeChannels.get(i) != null) {
             i++;
         }
-        Channel ret = new Channel(i,vehicleIdentificationNumber);
-        activeChannels.put(i,ret);
+        Channel ret = new Channel(i, vehicleIdentificationNumber);
+        activeChannels.put(i, ret);
         return ret;
     }
 
-    public synchronized  void closeChannel(final int channelIdentifier) {
+    /**
+     * <p>
+     *     Closes the channel with the provided {@code channelIdentifier}.
+     * </p>
+     * @param channelIdentifier The channel identifier of the {@link Channel} to close.
+     */
+    public synchronized void closeChannel(final int channelIdentifier) {
         activeChannels.remove(channelIdentifier);
     }
 
+    /**
+     * @param channelIdentifier The identifier of the channel to get.
+     * @return The {@link Channel} for the provided {@code channelIdentifier} or {@code null} if none exists.
+     */
     public Channel getChannel(int channelIdentifier) {
         return activeChannels.get(channelIdentifier);
     }

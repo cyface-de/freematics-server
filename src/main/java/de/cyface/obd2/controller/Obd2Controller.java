@@ -22,6 +22,7 @@ import java.io.Writer;
 
 /**
  * <p>
+ * Class responsible for handling REST request arriving at this server and sending appropriate responses.
  * </p>
  *
  * @author Klemens Muthmann
@@ -33,29 +34,68 @@ public final class Obd2Controller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Obd2Controller.class);
 
+    /**
+     * <p>
+     * The repository used to store all the captured data to.
+     * </p>
+     */
     @Autowired
     private DataRepository repo;
 
+    /**
+     * <p>
+     * An object managing the active {@link Channel} objects.
+     * </p>
+     */
     @Autowired
     private Channels channels;
 
+    /**
+     * <p>
+     * Root method for printing the already received data to the screen.
+     * </p>
+     *
+     * @param outputWriter A {@code Writer} taking the output to write to the screen.
+     * @throws IOException If anything fails while writing the output.
+     */
     @RequestMapping(method = RequestMethod.GET, path = "/")
     public void root(final Writer outputWriter) throws IOException {
         outputWriter.write(repo.toString());
     }
 
+    /**
+     * <p>
+     * Handler method for initializing a new dongle after startup. It register the transimission device for a vehicle
+     * with a new free channel.
+     * </p>
+     *
+     * @param vehicleIdentificationNumber The world wide unique vehicle identification number (VIN) of the vehicle
+     *                                    capturing the data.
+     * @return The channel number the client should use for further transmissions.
+     */
     @RequestMapping(method = RequestMethod.GET, path = "/push")
     public String push(@RequestParam("VIN") final String vehicleIdentificationNumber) {
         LOGGER.debug("Received request for new Channel with VIN {}.");
         Channel newChannel = channels.getNextFreeChannel(vehicleIdentificationNumber);
-        LOGGER.debug("New channel with identifier {} assigned to VIN {}.",newChannel.getChannelIdentifier(),vehicleIdentificationNumber);
+        LOGGER.debug("New channel with identifier {} assigned to VIN {}.", newChannel.getChannelIdentifier(),
+                vehicleIdentificationNumber);
         return String.format("CH:%s", newChannel.getChannelIdentifier());
     }
 
+    /**
+     * <p>
+     * Handler method for data transmission requests.
+     * </p>
+     *
+     * @param body              The message body containing the transmitted data.
+     * @param channelIdentifier The identifier of the channel to transmit to. This must be an active channel or the
+     *                          call
+     *                          will fail.
+     */
     @RequestMapping(method = RequestMethod.POST, path = "/post")
     public void post(@RequestBody final String body, @RequestParam("id") final int channelIdentifier) {
-        LOGGER.debug("Received data for channel {}",channelIdentifier);
-        LOGGER.debug("Received: {}",body);
+        LOGGER.debug("Received data for channel {}", channelIdentifier);
+        LOGGER.debug("Received: {}", body);
         InputData data = parseBody(body);
         Channel channel = channels.getChannel(channelIdentifier);
         if (channel == null) {
@@ -66,6 +106,14 @@ public final class Obd2Controller {
         repo.store(channel);
     }
 
+    /**
+     * <p>
+     * Parses the raw message body as received from the Freematics OBD II dongle in the Freematics data format
+     * </p>
+     *
+     * @param body
+     * @return
+     */
     private InputData parseBody(final String body) {
         String[] values = body.split(",");
         if (values.length < 3) {
@@ -118,9 +166,9 @@ public final class Obd2Controller {
                     default:
                         throw new IllegalStateException("Unknown data entry.");
                 }
-            } catch(IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 i++;
-                LOGGER.error("Unable to parse a data entry.",e);
+                LOGGER.error("Unable to parse a data entry.", e);
             }
         }
         if (gpsTime != 0L) {
@@ -173,7 +221,47 @@ public final class Obd2Controller {
     }
 }
 
+/**
+ * <p>
+ * An enumeration with all the possible data identifiers, expected as part of a data set.
+ * </p>
+ */
 enum EntryIdentifier {
-    ACC, UTC, LAT, LNG, ALT, SPD, SAT
+    /**
+     * <p>
+     * Identifier for accelerometer data.
+     * </p>
+     */
+    ACC, /**
+     * <p>
+     * Identifier for GPS timestamp in UTC.
+     * </p>
+     */
+    UTC, /**
+     * <p>
+     * Identifier for GPS latitude information.
+     * </p>
+     */
+    LAT, /**
+     * <p>
+     * Identifier for GPS longitude information.
+     * </p>
+     */
+    LNG, /**
+     * <p>
+     * Identifier for altitude information captured by GPS.
+     * </p>
+     */
+    ALT, /**
+     * <p>
+     * Identifier for GPS speed information.
+     * </p>
+     */
+    SPD, /**
+     * <p>
+     * Identifier for GPS Satellite information.
+     * </p>
+     */
+    SAT
 }
 

@@ -78,9 +78,8 @@ public final class DataRepository {
 class DeviceData {
     /**
      * <p>
-     * The world wide unique vehicel identification (VIN) number for each car. This is used to merge data collected by
-     * the
-     * same car.
+     * The world wide unique vehicle identification (VIN) number for each car. This is used to merge data collected by
+     * the same car.
      * </p>
      */
     private final String vehicleIdentificationNumber;
