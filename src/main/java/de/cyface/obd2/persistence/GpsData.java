@@ -71,16 +71,16 @@ public final class GpsData {
      * @param longitude  Geographic longitude as a decimal value.
      * @param altitude   The altitude for this input data.
      * @param gpsSpeed   The GPS speed for this input data.
-     * @param sattelites The sattelite information for this input data.
+     * @param satellites The satellite information for this input data.
      */
     public GpsData(final long gpsTime, final double latitude, final double longitude, final int altitude,
-            final double gpsSpeed, final int sattelites) {
+            final double gpsSpeed, final int satellites) {
         this.gpsTime = gpsTime;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
         this.gpsSpeed = gpsSpeed;
-        this.sattelites = sattelites;
+        this.sattelites = satellites;
     }
 
     /**
@@ -119,9 +119,9 @@ public final class GpsData {
     }
 
     /**
-     * @return The sattelite information for this input data.
+     * @return The satellite information for this input data.
      */
-    public int getSattelites() {
+    public int getSatellites() {
         return sattelites;
     }
 }

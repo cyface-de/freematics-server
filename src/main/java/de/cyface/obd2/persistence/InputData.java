@@ -8,8 +8,6 @@
  */
 package de.cyface.obd2.persistence;
 
-import org.apache.commons.lang3.Validate;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,13 +19,6 @@ import java.util.List;
  * </p>
  */
 public final class InputData {
-    /**
-     * <p>
-     * The identifier of the parsed input line used to avoid duplication and merge acceleration
-     * information to the corresponding location (GPS) information.
-     * </p>
-     */
-    private final String identifier;
 
     /**
      * <p>
@@ -46,15 +37,10 @@ public final class InputData {
 
     /**
      * <p>
-     * Creates a new completly initialized {@code InputData} object with the mandatory identifier.
+     * Creates a new completely initialized {@code InputData} object with the mandatory identifier.
      * </p>
-     *
-     * @param identifier The identifier of the parsed input line used to avoid duplication and merge acceleration
-     *                   information to the corresponding location (GPS) information.
      */
-    public InputData(final String identifier) {
-        Validate.notEmpty(identifier);
-        this.identifier = identifier;
+    public InputData() {
         this.accelerations = new ArrayList<>();
     }
 
@@ -63,12 +49,14 @@ public final class InputData {
      * Adds another tuple of accelerations in x, y and z direction to this {@code InputData} object.
      * </p>
      *
-     * @param ax Acceleration in device local x direction.
-     * @param ay Acceleration in device local y direction.
-     * @param az Acceleration in device local z direction.
+     * @param timestamp The timestamp at which this data entry was created, counted from the start of the measurement
+     *                  device.
+     * @param ax        Acceleration in device local x direction.
+     * @param ay        Acceleration in device local y direction.
+     * @param az        Acceleration in device local z direction.
      */
-    public void addAccelerationTuple(final int ax, final int ay, final int az) {
-        accelerations.add(new Acceleration(ax, ay, az));
+    public void addAccelerationTuple(final long timestamp, final int ax, final int ay, final int az) {
+        accelerations.add(new Acceleration(timestamp, ax, ay, az));
     }
 
     /**
@@ -98,14 +86,6 @@ public final class InputData {
     }
 
     /**
-     * @return The identifier of the parsed input line used to avoid duplication and merge acceleration information to
-     * the corresponding location (GPS) information.
-     */
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    /**
      * @return All accelerations collected within this {@code InputData}.
      */
     public Collection<Acceleration> getAccelerationTuples() {
@@ -124,15 +104,14 @@ public final class InputData {
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
-        ret.append("\t\t\t").append("Identifier: ").append(identifier).append("\n");
         if (gpsData != null) {
             ret.append("\t\t\t").append("Timestamp: ").append(gpsData.getGpsTime()).append(" Lat: ")
                .append(gpsData.getLatitude()).append(" Lon: ").append(gpsData.getLongitude()).append("Speed: ")
                .append(gpsData.getGpsSpeed()).append(" Altitude: ").append(gpsData.getAltitude())
-               .append(" Satellites: ").append(gpsData.getSattelites()).append("\n");
+               .append(" Satellites: ").append(gpsData.getSatellites()).append("\n");
         }
         for (Acceleration acceleration : accelerations) {
-            ret.append("\t\t\t").append("ax: ").append(acceleration.getAx()).append(" ay: ")
+            ret.append("\t\t\t").append("timestamp: ").append(acceleration.getTimestamp()).append(" ax: ").append(acceleration.getAx()).append(" ay: ")
                .append(acceleration.getAy()).append(" az: ").append(acceleration.getAz()).append("\n");
         }
         return ret.toString();

@@ -1,6 +1,5 @@
 /*
  * Created on 16.08.16 at 16:56.
- *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
  * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
@@ -70,7 +69,7 @@ public final class Obd2Controller {
      * </p>
      *
      * @param vehicleIdentificationNumber The world wide unique vehicle identification number (VIN) of the vehicle
-     *                                    capturing the data.
+     *            capturing the data.
      * @return The channel number the client should use for further transmissions.
      */
     @RequestMapping(method = RequestMethod.GET, path = "/push")
@@ -87,10 +86,10 @@ public final class Obd2Controller {
      * Handler method for data transmission requests.
      * </p>
      *
-     * @param body              The message body containing the transmitted data.
+     * @param body The message body containing the transmitted data.
      * @param channelIdentifier The identifier of the channel to transmit to. This must be an active channel or the
-     *                          call
-     *                          will fail.
+     *            call
+     *            will fail.
      */
     @RequestMapping(method = RequestMethod.POST, path = "/post")
     public void post(@RequestBody final String body, @RequestParam("id") final int channelIdentifier) {
@@ -115,65 +114,66 @@ public final class Obd2Controller {
      * @return
      */
     private InputData parseBody(final String body) {
-        String[] values = body.split(",");
-        if (values.length < 3) {
-            return null;
-        }
+        String[] entries = body.split(" ");
 
-        InputData ret = new InputData(values[0]);
+        long lastAbsoluteTimestamp = 0L;
+        InputData ret = new InputData();
         long gpsTime = 0L;
         double latitude = 0.0;
         double longitude = 0.0;
         int altitude = 0;
         double gpsSpeed = 0.0;
         int satellites = 0;
-        int i = 1;
-        while (i < values.length) {
+
+        for (int entryIndex = 0; entryIndex < entries.length; entryIndex++) {
+            String[] values = entries[entryIndex].split(",");
+
+            long timestamp = 0L;
+            if (values[0].startsWith("#")) {
+                lastAbsoluteTimestamp = Long.valueOf(values[0].substring(1));
+                lastAbsoluteTimestamp *= 1000L;
+                timestamp = lastAbsoluteTimestamp;
+            } else {
+                timestamp = lastAbsoluteTimestamp + Long.valueOf(values[0]);
+            }
+
             try {
-                EntryIdentifier lastEntryIdentifier = EntryIdentifier.valueOf(values[i]);
+                EntryIdentifier lastEntryIdentifier = EntryIdentifier.valueOf(values[1]);
                 switch (lastEntryIdentifier) {
                     case UTC:
-                        gpsTime = parseLongValue(values[i + 1]);
-                        i += 2;
+                        gpsTime = parseLongValue(values[2]);
                         break;
                     case LAT:
-                        latitude = parseDoubleValue(values[i + 1]);
-                        i += 2;
+                        latitude = parseDoubleValue(values[2]);
                         break;
                     case LNG:
-                        longitude = parseDoubleValue(values[i + 1]);
-                        i += 2;
+                        longitude = parseDoubleValue(values[2]);
                         break;
                     case ALT:
-                        altitude = parseIntValue(values[i + 1]);
-                        i += 2;
+                        altitude = parseIntValue(values[2]);
                         break;
                     case SPD:
-                        gpsSpeed = parseDoubleValue(values[i + 1]);
-                        i += 2;
+                        gpsSpeed = parseDoubleValue(values[2]);
                         break;
                     case SAT:
-                        satellites = parseIntValue(values[i + 1]);
-                        i += 2;
+                        satellites = parseIntValue(values[2]);
                         break;
                     case ACC:
-                        int ax = parseIntValue(values[i + 1]);
-                        int ay = parseIntValue(values[i + 2]);
-                        int az = parseIntValue(values[i + 3]);
-                        ret.addAccelerationTuple(ax, ay, az);
-                        i += 4;
+                        int ax = parseIntValue(values[2]);
+                        int ay = parseIntValue(values[3]);
+                        int az = parseIntValue(values[4]);
+                        ret.addAccelerationTuple(timestamp, ax, ay, az);
                         break;
                     default:
                         throw new IllegalStateException("Unknown data entry.");
                 }
             } catch (IllegalArgumentException e) {
-                i++;
                 LOGGER.error("Unable to parse a data entry.", e);
             }
-        }
-        if (gpsTime != 0L) {
-            GpsData gpsData = new GpsData(gpsTime, latitude, longitude, altitude, gpsSpeed, satellites);
-            ret.addGpsData(gpsData);
+            if (gpsTime != 0L) {
+                GpsData gpsData = new GpsData(gpsTime, latitude, longitude, altitude, gpsSpeed, satellites);
+                ret.addGpsData(gpsData);
+            }
         }
         return ret;
     }
@@ -232,36 +232,41 @@ enum EntryIdentifier {
      * Identifier for accelerometer data.
      * </p>
      */
-    ACC, /**
+    ACC,
+    /**
      * <p>
      * Identifier for GPS timestamp in UTC.
      * </p>
      */
-    UTC, /**
+    UTC,
+    /**
      * <p>
      * Identifier for GPS latitude information.
      * </p>
      */
-    LAT, /**
+    LAT,
+    /**
      * <p>
      * Identifier for GPS longitude information.
      * </p>
      */
-    LNG, /**
+    LNG,
+    /**
      * <p>
      * Identifier for altitude information captured by GPS.
      * </p>
      */
-    ALT, /**
+    ALT,
+    /**
      * <p>
      * Identifier for GPS speed information.
      * </p>
      */
-    SPD, /**
+    SPD,
+    /**
      * <p>
      * Identifier for GPS Satellite information.
      * </p>
      */
     SAT
 }
-

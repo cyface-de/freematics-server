@@ -20,6 +20,12 @@ package de.cyface.obd2.persistence;
 public final class Acceleration {
     /**
      * <p>
+     * Time passed since startup of the measuring device in milliseconds.
+     * </p>
+     */
+    private final long timestamp;
+    /**
+     * <p>
      * Acceleration in device local x direction.
      * </p>
      */
@@ -43,14 +49,23 @@ public final class Acceleration {
      * constructor.
      * </p>
      *
-     * @param ax Acceleration in device local x direction.
-     * @param ay Acceleration in device local y direction.
-     * @param az Acceleration in device local z direction.
+     * @param timestamp Time passed since startup of the measuring device in milliseconds.
+     * @param ax        Acceleration in device local x direction.
+     * @param ay        Acceleration in device local y direction.
+     * @param az        Acceleration in device local z direction.
      */
-    Acceleration(final int ax, final int ay, final int az) {
+    Acceleration(final long timestamp, final int ax, final int ay, final int az) {
+        this.timestamp = timestamp;
         this.ax = ax;
         this.ay = ay;
         this.az = az;
+    }
+
+    /**
+     * @return Time passed since startup of the measuring device in milliseconds.
+     */
+    public long getTimestamp() {
+        return timestamp;
     }
 
     /**
