@@ -5,8 +5,8 @@ node {
 
 	stage 'Build'
 	if(isUnix()) {
-		sh 'gradlew clean build'
+		sh './gradlew --console=plain --no-daemon --info --stacktrace clean build'
 	} else {
-		bat 'gradlew clean build'
+		bat './gradlew --console=plain --no-daemon --info --stacktrace clean build'
 	}
 }
