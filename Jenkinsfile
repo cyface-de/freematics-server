@@ -32,16 +32,16 @@ node {
         )
 
     } catch (e) {
-        stage 'Message'
-        echo "Caught: ${e}"
+        stage 'Send notifications'
 
         String recipient = 'klemens.muthmann@gmail.com'
 
         mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) failed",
-                body: "It appears that ${env.BUILD_URL} is failing, somebody should do something about that",
+                body: "It appears that ${env.BUILD_URL} is failing, you should do something about that!",
                 to: recipient,
                 replyTo: recipient,
                 from: 'noreply@cyface.de'
+        error "Failing build because of ${e}"
 
     }
 }
