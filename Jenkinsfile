@@ -1,7 +1,6 @@
 #!groovy
 node {
     def exception = null;
-
     try {
         stage('Checkout') {
             // get source code
@@ -41,7 +40,6 @@ node {
                         // Jacoco report rendering
                         gradle.aggregateJaCoCoReports()
                         //publish(target: [reportDir:'build/reports/jacoco/jacocoTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
-                        // TODO This is a temporary workaround until the JaCoCo plugin has been adapted to pipelines: https://github.com/jenkinsci/pipeline-plugin/blob/master/COMPATIBILITY.md
                         //step([$class: 'JaCoCoPublisher', execPattern: 'build/jacoco/*.exec', classPattern: 'build/classes/main', sourcePattern: 'src/main/java'])
                     }
             )
