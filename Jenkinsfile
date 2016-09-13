@@ -26,7 +26,7 @@ node {
                 },
                 'checkstyle': {
                     gradle.codeQualityCheckstyle()
-                    step([$class: 'CheckstylePublisher', pattern: 'build/reports/checkstyle/*.xml'])
+                    step([$class: 'CheckStylePublisher', pattern: 'build/reports/checkstyle/*.xml'])
                 },
                 'findbugs': {
                     gradle.codeQualityCheckstyle()
