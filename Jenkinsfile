@@ -50,29 +50,7 @@ node {
         stage('Publish Metrics to Sonarqube') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'sonar-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 echo "Accessing sonarqube with username ${env.USERNAME} and password ${env.PASSWORD}."
-                sh "/opt/sonar_scanner/bin/sonar-scanner -e " +
-                        "-Dsonar.host.url=http://sonarqube:9000 " +
-                        "-Dsonar.login=${env.USERNAME} "
-                        "-Dsonar.password=${env.PASSWORD} "
-                        // Required Metadata
-                        "-Dsonar.projectKey=freematics-server " +
-                        "-Dsonar.projectName=freematics-server " +
-                        "-Dsonar.projectVersion=1.0.0-SNAPSHOT " +
-                        // Paths to source directories
-                        // Paths are relative to the sonar-project.properties file. Replace "\" by "/" on Windows.
-                        // Do not put the "sonar-project.properties" file in the same directory with the source code.
-                        // (i.e. never set the "sonar.sources" property to ".")
-                        "-Dsonar.sources=src/main/java " +
-                        // path to test source directories (optional)
-                        "-Dsonar.tests=src/test/java " +
-                        // path to project binaries (optional), for example directory of Java bytecode
-                        "-Dsonar.binaries=build/classes " +
-                        // The value of the property must be the key of the language.
-                        "-Dsonar.language=java " +
-                        // Encoding of the source code
-                        "-Dsonar.sourceEncoding=UTF-8 " +
-                        "-Dsonar.java.source=1.8 " +
-                        "-Dsonar.jacoco.reportPath=build/jacoco/test.exec"
+                sh "/opt/sonar_scanner/bin/sonar-scanner -e -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=${env.USERNAME} -Dsonar.password=${env.PASSWORD} -Dsonar.projectKey=freematics-server -Dsonar.projectName=freematics-server -Dsonar.projectVersion=1.0.0-SNAPSHOT -Dsonar.sources=src/main/java -Dsonar.tests=src/test/java -Dsonar.binaries=build/classes -Dsonar.language=java -Dsonar.sourceEncoding=UTF-8 -Dsonar.java.source=1.8 -Dsonar.jacoco.reportPath=build/jacoco/test.exec"
             }
         }
     } catch (e) {
