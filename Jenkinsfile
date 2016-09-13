@@ -64,10 +64,11 @@ node {
             String recipient = 'klemens.muthmann@gmail.com'
 
             mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}) failed",
-                    body: "It appears that ${env.BUILD_URL} is failing, you should do something about that!\n\n" + exception,
-                    to: recipient,
-                    replyTo: recipient,
-                    from: 'noreply@cyface.de'
+                 body: "It appears that ${env.BUILD_URL} is failing, you should do something about that!\n\n" + exception,
+                 to: recipient,
+                 replyTo: recipient,
+                 from: 'noreply@cyface.de'
+
             error "Failing build because of ${exception}"
         }
     }
