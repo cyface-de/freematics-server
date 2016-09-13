@@ -13,8 +13,16 @@ def test(String project = null, String switches = null  ) {
 
 }
 
-def codeQuality(String switches = null) {
+def codeQualityPmd(String switches = null) {
     run 'pmdMain', switches
+}
+
+def codeQualityFindbugs(String switches = null) {
+    run 'findbugsMain', switches
+}
+
+def codeQualityCheckstyle(String switches = null) {
+    run 'checkstyleMain', switches
 }
 
 def aggregateJaCoCoReports(String switches = null) {
