@@ -52,8 +52,8 @@ node {
                 echo "Accessing sonarqube with username ${env.USERNAME} and password ${env.PASSWORD}."
                 sh "/opt/sonar_scanner/bin/sonar-scanner -e " +
                         "-Dsonar.host.url=http://sonarqube:9000 " +
-                        "-Dsonar.login=" + "${env.USERNAME}"
-                        "-Dsonar.password=" + "${env.PASSWORD}"
+                        "-Dsonar.login=${env.USERNAME} "
+                        "-Dsonar.password=${env.PASSWORD} "
                         // Required Metadata
                         "-Dsonar.projectKey=freematics-server " +
                         "-Dsonar.projectName=freematics-server " +
@@ -82,7 +82,6 @@ node {
     stage('Send notification') {
         if (exception != null) {
             echo "Caught Exception ${exception}"
-            stage 'Send notifications'
 
             String recipient = 'klemens.muthmann@gmail.com'
 
