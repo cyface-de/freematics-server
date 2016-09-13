@@ -21,13 +21,22 @@ node {
         parallel(
                 'pmd': {
                     // static code analysis
-                    gradle.codeQuality()
+                    gradle.codeQualityPmd()
                     step([$class: 'PmdPublisher', pattern: 'build/reports/pmd/*.xml'])
+                },
+                'checkstyle': {
+                    gradle.codeQualityCheckstyle()
+                    step([$class: 'CheckstylePublisher', pattern: 'build/reports/checkstyle/*.xml'])
+                },
+                'findbugs': {
+                    gradle.codeQualityCheckstyle()
+                    step([$class: 'FindbugsPublisher', pattern: 'build/reports/findbugs/*.xml'])
                 },
                 'jacoco': {
                     // Jacoco report rendering
                     gradle.aggregateJaCoCoReports()
                     publish(target: [reportDir:'build/reports/jacoco/jacocoRootTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
+                    step([$class: 'JacocoPublisher', execPattern:'build/jacoco/*.exec', classPattern: 'build/classes/main', sourcePattern: 'src/main/java'])
                 }
         )
 
