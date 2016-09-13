@@ -21,25 +21,49 @@ node {
         stage 'Code Quality'
         parallel(
                 'pmd': {
-                        // static code analysis
-                        gradle.codeQualityPmd()
-                        step([$class: 'PmdPublisher', pattern: 'build/reports/pmd/*.xml'])
+                    // static code analysis
+                    gradle.codeQualityPmd()
+                    step([$class: 'PmdPublisher', pattern: 'build/reports/pmd/*.xml'])
                 },
                 'checkstyle': {
-                        gradle.codeQualityCheckstyle()
-                        step([$class: 'CheckStylePublisher', pattern: 'build/reports/checkstyle/*.xml'])
+                    gradle.codeQualityCheckstyle()
+                    step([$class: 'CheckStylePublisher', pattern: 'build/reports/checkstyle/*.xml'])
                 },
                 'findbugs': {
-                        gradle.codeQualityCheckstyle()
-                        step([$class: 'FindBugsPublisher', pattern: 'build/reports/findbugs/*.xml'])
+                    gradle.codeQualityCheckstyle()
+                    step([$class: 'FindBugsPublisher', pattern: 'build/reports/findbugs/*.xml'])
                 },
                 'jacoco': {
-                        // Jacoco report rendering
-                        gradle.aggregateJaCoCoReports()
-                        //publish(target: [reportDir:'build/reports/jacoco/jacocoTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
-                        step([$class: 'JacocoPublisher', execPattern: 'build/jacoco/*.exec', classPattern: 'build/classes/main', sourcePattern: 'src/main/java'])
+                    // Jacoco report rendering
+                    gradle.aggregateJaCoCoReports()
+                    //publish(target: [reportDir:'build/reports/jacoco/jacocoTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
+                    step([$class: 'JacocoPublisher', execPattern: 'build/jacoco/*.exec', classPattern: 'build/classes/main', sourcePattern: 'src/main/java'])
                 }
         )
+
+        stage 'Publish Metrics to Sonarqube'
+        def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+        sh "${sonarqubeScannerHome}/bin/sonar-scanner -e " +
+                "-Dsonar.host.url=http://sonarqube:9000" +
+                // Required Metadata
+                "-Dsonar.projectKey=freematics-server" +
+                "-Dsonar.projectName=freematics-server" +
+                "-Dsonar.projectVersion=1.0.0-SNAPSHOT" +
+                // Paths to source directories
+                // Paths are relative to the sonar-project.properties file. Replace "\" by "/" on Windows.
+                // Do not put the "sonar-project.properties" file in the same directory with the source code.
+                // (i.e. never set the "sonar.sources" property to ".")
+                "-Dsonar.sources=src/main/java" +
+                // path to test source directories (optional)
+                "-Dsonar.tests=src/test/java" +
+                // path to project binaries (optional), for example directory of Java bytecode
+                "-Dsonar.binaries=build/classes" +
+                // The value of the property must be the key of the language.
+                "-Dsonar.language=java" +
+                // Encoding of the source code
+                "-Dsonar.sourceEncoding=UTF-8" +
+                "-Dsonar.java.source=1.8" +
+                "-Dsonar.jacoco.reportPath=build/jacoco/test.exec"
 
     } catch (e) {
         exception = e;
