@@ -30,7 +30,7 @@ node {
                 },
                 'findbugs': {
                     gradle.codeQualityCheckstyle()
-                    step([$class: 'FindbugsPublisher', pattern: 'build/reports/findbugs/*.xml'])
+                    step([$class: 'FindBugsPublisher', pattern: 'build/reports/findbugs/*.xml'])
                 },
                 'jacoco': {
                     // Jacoco report rendering
