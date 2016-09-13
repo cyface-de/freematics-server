@@ -2,7 +2,7 @@
 node {
     def exception = null;
     try {
-        stage 'Checkout' {
+        stage('Checkout') {
             // get source code
             checkout scm
         }
@@ -15,13 +15,13 @@ node {
             gradle.cleanAndCompile()
         }
 
-        stage 'Test' {
+        stage('Test') {
             gradle.test()
             step([$class: 'JUnitResultArchiver', testResults:
                     '**/build/test-results/TEST-*.xml'])
         }
 
-        stage 'Code Quality' {
+        stage('Code Quality') {
             parallel(
                     'pmd': {
                         // static code analysis
@@ -45,7 +45,7 @@ node {
             )
         }
 
-        stage 'Publish Metrics to Sonarqube' {
+        stage('Publish Metrics to Sonarqube') {
             def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
             sh "${sonarqubeScannerHome}/bin/sonar-scanner -e " +
                     "-Dsonar.host.url=http://sonarqube:9000" +
@@ -73,7 +73,7 @@ node {
         exception = e;
     }
 
-    stage 'Send notification' {
+    stage('Send notification') {
         if (exception != null) {
             echo "Caught Exception ${exception}"
             stage 'Send notifications'
