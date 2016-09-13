@@ -49,6 +49,7 @@ node {
         // Requires the Credentials Binding plugin
         stage('Publish Metrics to Sonarqube') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'sonar-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                echo "Accessing sonarqube with username ${env.USERNAME} and password ${env.PASSWORD}."
                 sh "/opt/sonar_scanner/bin/sonar-scanner -e " +
                         "-Dsonar.host.url=http://sonarqube:9000 " +
                         "-Dsonar.login=" + "${env.USERNAME}"
