@@ -26,7 +26,7 @@ def codeQualityCheckstyle(String switches = null) {
 }
 
 def aggregateJaCoCoReports(String switches = null) {
-    run 'jacocoRootTestReport', switches
+    run 'jacocoTestReport', switches
 }
 
 def assembleApplication(String switches = null) {

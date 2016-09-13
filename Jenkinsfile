@@ -35,7 +35,7 @@ node {
                 'jacoco': {
                     // Jacoco report rendering
                     gradle.aggregateJaCoCoReports()
-                    publish(target: [reportDir:'build/reports/jacoco/jacocoRootTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
+                    //publish(target: [reportDir:'build/reports/jacoco/jacocoTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
                     step([$class: 'JacocoPublisher', execPattern:'build/jacoco/*.exec', classPattern: 'build/classes/main', sourcePattern: 'src/main/java'])
                 }
         )
