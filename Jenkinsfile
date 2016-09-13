@@ -41,6 +41,8 @@ node {
         )
 
     } catch (e) {
+        echo "Caught Exception ${e}"
+        e.printStackTrace()
         stage 'Send notifications'
 
         String recipient = 'klemens.muthmann@gmail.com'
