@@ -8,10 +8,11 @@
  */
 package de.cyface.obd2.persistence;
 
-import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,7 +54,7 @@ public final class DataRepository {
         String vehicleIdentificationNumber = data.getVehicleIdentificationNumber();
         DeviceData existingDeviceData = dataPerDevice.get(vehicleIdentificationNumber);
         if (existingDeviceData == null) {
-            existingDeviceData = new DeviceData(vehicleIdentificationNumber);
+            existingDeviceData = new DeviceData();
         }
         existingDeviceData.addChannelInformation(data);
         dataPerDevice.put(vehicleIdentificationNumber, existingDeviceData);
@@ -76,35 +77,21 @@ public final class DataRepository {
  * </p>
  */
 class DeviceData {
-    /**
-     * <p>
-     * The world wide unique vehicle identification (VIN) number for each car. This is used to merge data collected by
-     * the same car.
-     * </p>
-     */
-    private final String vehicleIdentificationNumber;
 
     /**
      * <p>
-     * For each restart of the Freematics dongle a new communication channel is created. This attribute stores the
-     * captured data per created channel.
+     * This attribute stores the captured data.
      * </p>
      */
-    private final Map<Integer, Channel> channelInformation;
+    private final List<InputData> data;
 
     /**
      * <p>
-     * Creates a new completely initialized {@code DeviceData} object for one specific vehicle identified by its vehicle
-     * identification number.
+     * Creates a new completely initialized {@code DeviceData} object for one specific vehicle.
      * </p>
-     *
-     * @param vehicleIdentificationNumber The world wide unique vehicel identification (VIN) number for each car. This
-     *                                    is used to merge data collected by the same car.
      */
-    DeviceData(final String vehicleIdentificationNumber) {
-        Validate.notEmpty(vehicleIdentificationNumber);
-        this.vehicleIdentificationNumber = vehicleIdentificationNumber;
-        channelInformation = new HashMap<>();
+    DeviceData() {
+        data = new ArrayList<>();
     }
 
     /**
@@ -116,35 +103,14 @@ class DeviceData {
      * @param channel The channel information to merge into this {@code DeviceData} object.
      */
     public void addChannelInformation(final Channel channel) {
-        Channel existingChannel = channelInformation.get(channel.getChannelIdentifier());
-        if (existingChannel != null) {
-            existingChannel = mergeChannels(existingChannel, channel);
-        } else {
-            existingChannel = channel;
-        }
-        channelInformation.put(existingChannel.getChannelIdentifier(), existingChannel);
-    }
-
-    /**
-     * <p>
-     * Merges the information from {@code channel} into {@code existingChannel} and returns the merged {@code
-     * existingChannel}.
-     * </p>
-     *
-     * @param existingChannel The {@link Channel} to merge the information into.
-     * @param channel         The {@link Channel} containing the information to merge.
-     * @return The merged {@link Channel}.
-     */
-    private Channel mergeChannels(Channel existingChannel, Channel channel) {
-        existingChannel.addInputData(channel.getInputData());
-        return existingChannel;
+        data.addAll(channel.getInputData());
     }
 
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
-        for (final Map.Entry<Integer, Channel> entry : channelInformation.entrySet()) {
-            ret.append("\t").append(entry.getKey()).append(":\n").append(entry.getValue());
+        for (final InputData entry : data) {
+            ret.append("\t").append(entry).append("\n");
         }
         return ret.toString();
     }

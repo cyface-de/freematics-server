@@ -18,6 +18,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MessboxServerApplication {
 
     /**
+     * Private constructor to prevent everyone from creating an object of this class.
+     */
+    private MessboxServerApplication() {
+        // Nothing to do here.
+    }
+
+    /**
      * <p>
      * Main method used to start the server.
      * </p>
