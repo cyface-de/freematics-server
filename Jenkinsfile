@@ -1,6 +1,7 @@
 #!groovy
 node {
     def exception = null;
+
     try {
         stage('Checkout') {
             // get source code
@@ -40,34 +41,40 @@ node {
                         // Jacoco report rendering
                         gradle.aggregateJaCoCoReports()
                         //publish(target: [reportDir:'build/reports/jacoco/jacocoTestReport/html',reportFile: 'index.html', reportName: 'Code Coverage'])
+                        // TODO This is a temporary workaround until the JaCoCo plugin has been adapted to pipelines: https://github.com/jenkinsci/pipeline-plugin/blob/master/COMPATIBILITY.md
                         //step([$class: 'JaCoCoPublisher', execPattern: 'build/jacoco/*.exec', classPattern: 'build/classes/main', sourcePattern: 'src/main/java'])
                     }
             )
         }
 
+        // TODO this is a temporary fix until the Sonarqube plugin has been adapted to pipelines: https://github.com/jenkinsci/pipeline-plugin/blob/master/COMPATIBILITY.md
+        // Requires the Credentials Binding plugin
         stage('Publish Metrics to Sonarqube') {
-            def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-            sh "${sonarqubeScannerHome}/bin/sonar-scanner -e " +
-                    "-Dsonar.host.url=http://sonarqube:9000" +
-                    // Required Metadata
-                    "-Dsonar.projectKey=freematics-server" +
-                    "-Dsonar.projectName=freematics-server" +
-                    "-Dsonar.projectVersion=1.0.0-SNAPSHOT" +
-                    // Paths to source directories
-                    // Paths are relative to the sonar-project.properties file. Replace "\" by "/" on Windows.
-                    // Do not put the "sonar-project.properties" file in the same directory with the source code.
-                    // (i.e. never set the "sonar.sources" property to ".")
-                    "-Dsonar.sources=src/main/java" +
-                    // path to test source directories (optional)
-                    "-Dsonar.tests=src/test/java" +
-                    // path to project binaries (optional), for example directory of Java bytecode
-                    "-Dsonar.binaries=build/classes" +
-                    // The value of the property must be the key of the language.
-                    "-Dsonar.language=java" +
-                    // Encoding of the source code
-                    "-Dsonar.sourceEncoding=UTF-8" +
-                    "-Dsonar.java.source=1.8" +
-                    "-Dsonar.jacoco.reportPath=build/jacoco/test.exec"
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'sonar-creds', usernameVariable: 'USER', passwordVariable: 'PASS']]) {
+                sh "/opt/sonar_scanner/bin/sonar-scanner -e " +
+                        "-Dsonar.host.url=http://sonarqube:9000 " +
+                        "-Dsonar.login=$USER " +
+                        "-Dsonar.password=$PASS " +
+                        // Required Metadata
+                        "-Dsonar.projectKey=freematics-server " +
+                        "-Dsonar.projectName=freematics-server " +
+                        "-Dsonar.projectVersion=1.0.0-SNAPSHOT " +
+                        // Paths to source directories
+                        // Paths are relative to the sonar-project.properties file. Replace "\" by "/" on Windows.
+                        // Do not put the "sonar-project.properties" file in the same directory with the source code.
+                        // (i.e. never set the "sonar.sources" property to ".")
+                        "-Dsonar.sources=src/main/java " +
+                        // path to test source directories (optional)
+                        "-Dsonar.tests=src/test/java " +
+                        // path to project binaries (optional), for example directory of Java bytecode
+                        "-Dsonar.binaries=build/classes " +
+                        // The value of the property must be the key of the language.
+                        "-Dsonar.language=java " +
+                        // Encoding of the source code
+                        "-Dsonar.sourceEncoding=UTF-8 " +
+                        "-Dsonar.java.source=1.8 " +
+                        "-Dsonar.jacoco.reportPath=build/jacoco/test.exec"
+            }
         }
     } catch (e) {
         exception = e;
