@@ -110,8 +110,8 @@ public final class Obd2Controller {
      * Parses the raw message body as received from the Freematics OBD II dongle in the Freematics data format
      * </p>
      *
-     * @param body
-     * @return
+     * @param body One row of data as received from the Freematics OBD II dongle.
+     * @return A parsed representation of the parsed body.
      */
     private InputData parseBody(final String body) {
         String[] entries = body.split(" ");

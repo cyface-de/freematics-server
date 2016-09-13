@@ -10,10 +10,10 @@ package de.cyface.obd2.persistence;
 
 import org.apache.commons.lang3.Validate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -43,7 +43,7 @@ public final class Channel {
      * The data captured and transmitted via this channel.
      * </p>
      */
-    private final Map<String, InputData> data;
+    private final List<InputData> data;
 
     /**
      * <p>
@@ -59,7 +59,7 @@ public final class Channel {
         Validate.notEmpty(vehicleIdentificationNumber);
         this.channelIdentifier = channelIdentifier;
         this.vehicleIdentificationNumber = vehicleIdentificationNumber;
-        this.data = new HashMap<>();
+        this.data = new ArrayList<>();
     }
 
     /**
@@ -87,13 +87,7 @@ public final class Channel {
     public void addInputData(final InputData inputData) {
         Validate.notNull(inputData);
 
-        InputData existingData = this.data.get(inputData.getIdentifier());
-        if (existingData != null) {
-            existingData = mergeData(existingData, inputData);
-        } else {
-            existingData = inputData;
-        }
-        this.data.put(inputData.getIdentifier(), existingData);
+        data.add(inputData);
     }
 
     /**
@@ -106,45 +100,21 @@ public final class Channel {
     public void addInputData(final Collection<InputData> inputData) {
         Validate.notNull(inputData);
 
-        for (InputData entry : inputData) {
-            addInputData(entry);
-        }
-    }
-
-    /**
-     * <p>
-     * Merges one {@link InputData} object into another. The object {@code data} is merged into {@code existingData},
-     * which is returned.
-     * </p>
-     *
-     * @param existingData The {@link InputData} object to merge into.
-     * @param data The {@link InputData} object to merge.
-     * @return The merge {@code existingData} object.
-     */
-    private InputData mergeData(final InputData existingData, final InputData data) {
-        Validate.notNull(existingData);
-        Validate.notNull(data);
-
-        existingData.addAccelerationTuples(data.getAccelerationTuples());
-        GpsData gpsData = data.getGpsData();
-        if (gpsData != null) {
-            existingData.addGpsData(gpsData);
-        }
-        return existingData;
+        data.addAll(inputData);
     }
 
     /**
      * @return All the data received via this channel.
      */
     public Collection<InputData> getInputData() {
-        return Collections.unmodifiableCollection(data.values());
+        return Collections.unmodifiableCollection(data);
     }
 
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
-        for (final Map.Entry<String, InputData> entry : data.entrySet()) {
-            ret.append("\t\t").append(entry.getValue()).append(":\n").append(entry.getValue());
+        for (InputData entry : data) {
+            ret.append("\t\t").append(entry).append(":\n");
         }
         return ret.toString();
     }
