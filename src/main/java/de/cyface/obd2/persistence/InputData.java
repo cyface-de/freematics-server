@@ -9,8 +9,6 @@
 package de.cyface.obd2.persistence;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,17 +59,6 @@ public final class InputData {
 
     /**
      * <p>
-     * Adds all the acceleration tuples from the provided {@code Collection} to this {@code InputData} object.
-     * </p>
-     *
-     * @param accelerations Accelerations to add to this object.
-     */
-    public void addAccelerationTuples(final Collection<Acceleration> accelerations) {
-        this.accelerations.addAll(accelerations);
-    }
-
-    /**
-     * <p>
      * Adds captured GPS data to this input data, but only if no previous value has been set. GPS receivers usually have
      * a lower frequency than for example accelerometers and thus not all input data has GPS data.
      * </p>
@@ -85,28 +72,37 @@ public final class InputData {
         this.gpsData = gpsData;
     }
 
-    /**
-     * @return All accelerations collected within this {@code InputData}.
-     */
-    public Collection<Acceleration> getAccelerationTuples() {
-        return Collections.unmodifiableList(accelerations);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        InputData inputData = (InputData)o;
+
+        if (!accelerations.equals(inputData.accelerations)) {
+            return false;
+        }
+        return gpsData != null ? gpsData.equals(inputData.gpsData) : inputData.gpsData == null;
+
     }
 
-    /**
-     * @return An object containing all the information from the GPS sensor captured for this {@code InputData}. This is
-     * an optional value and only exists if GPS data was available during capturing. If no data was available the
-     * method returns {@code null}.
-     */
-    public GpsData getGpsData() {
-        return gpsData;
+    @Override
+    public int hashCode() {
+        int result = accelerations.hashCode();
+        result = 31 * result + (gpsData != null ? gpsData.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
         if (gpsData != null) {
-            ret.append("\t\t\t").append("Timestamp: ").append(gpsData.getGpsTime()).append(" Lat: ")
-               .append(gpsData.getLatitude()).append(" Lon: ").append(gpsData.getLongitude()).append("Speed: ")
+            ret.append("\t\t\t").append("timestamp: ").append(gpsData.getGpsTime()).append(" Lat: ")
+               .append(gpsData.getLatitude()).append(" Lon: ").append(gpsData.getLongitude()).append(" Speed: ")
                .append(gpsData.getGpsSpeed()).append(" Altitude: ").append(gpsData.getAltitude())
                .append(" Satellites: ").append(gpsData.getSatellites()).append("\n");
         }
@@ -115,5 +111,6 @@ public final class InputData {
                .append(acceleration.getAy()).append(" az: ").append(acceleration.getAz()).append("\n");
         }
         return ret.toString();
+
     }
 }

@@ -18,9 +18,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MessboxServerApplication {
 
     /**
-     * Private constructor to prevent everyone from creating an object of this class.
+     * Constructor used by Spring to create an application context.
      */
-    private MessboxServerApplication() {
+    public MessboxServerApplication() {
         // Nothing to do here.
     }
 

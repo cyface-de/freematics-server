@@ -73,7 +73,7 @@ public final class Channel {
      * @return The world wide unique vehicle identification (VIN) number for each car. This is used to merge data
      * collected by the same car.
      */
-    public String getVehicleIdentificationNumber() {
+    String getVehicleIdentificationNumber() {
         return vehicleIdentificationNumber;
     }
 
@@ -91,19 +91,6 @@ public final class Channel {
     }
 
     /**
-     * <p>
-     * Adds all the input data from the provided {@code Collection} to this {@code Channel}.
-     * </p>
-     *
-     * @param inputData A {@code Collection} of input data to add to this {@code Channel}.
-     */
-    public void addInputData(final Collection<InputData> inputData) {
-        Validate.notNull(inputData);
-
-        data.addAll(inputData);
-    }
-
-    /**
      * @return All the data received via this channel.
      */
     public Collection<InputData> getInputData() {
@@ -117,5 +104,36 @@ public final class Channel {
             ret.append("\t\t").append(entry).append(":\n");
         }
         return ret.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Channel channel = (Channel)o;
+
+        if (channelIdentifier != channel.channelIdentifier) {
+            return false;
+        }
+        if (vehicleIdentificationNumber != null ?
+                !vehicleIdentificationNumber.equals(channel.vehicleIdentificationNumber) :
+                channel.vehicleIdentificationNumber != null) {
+            return false;
+        }
+        return data != null ? data.equals(channel.data) : channel.data == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = channelIdentifier;
+        result = 31 * result + (vehicleIdentificationNumber != null ? vehicleIdentificationNumber.hashCode() : 0);
+        result = 31 * result + (data != null ? data.hashCode() : 0);
+        return result;
     }
 }

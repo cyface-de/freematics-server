@@ -25,7 +25,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Component
-public final class DataRepository {
+public class DataRepository {
     /**
      * <p>
      * A mapping from a vehicle identification number to all the data captured for that vehicle on this server.
@@ -102,7 +102,7 @@ class DeviceData {
      *
      * @param channel The channel information to merge into this {@code DeviceData} object.
      */
-    public void addChannelInformation(final Channel channel) {
+    void addChannelInformation(final Channel channel) {
         data.addAll(channel.getInputData());
     }
 
@@ -110,7 +110,7 @@ class DeviceData {
     public String toString() {
         StringBuilder ret = new StringBuilder();
         for (final InputData entry : data) {
-            ret.append("\t").append(entry).append("\n");
+            ret.append(entry).append("\n");
         }
         return ret.toString();
     }

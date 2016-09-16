@@ -11,6 +11,7 @@ import de.cyface.obd2.persistence.Channel;
 import de.cyface.obd2.persistence.DataRepository;
 import de.cyface.obd2.persistence.GpsData;
 import de.cyface.obd2.persistence.InputData;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,12 @@ import java.io.Writer;
 @RestController
 public final class Obd2Controller {
 
+    /**
+     * <p>
+     * Logger for objects of this class. Configure it using SpringBoot settings in
+     * <tt>resources/application.properties</tt>.
+     * </p>
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(Obd2Controller.class);
 
     /**
@@ -74,6 +81,7 @@ public final class Obd2Controller {
      */
     @RequestMapping(method = RequestMethod.GET, path = "/push")
     public String push(@RequestParam("VIN") final String vehicleIdentificationNumber) {
+        Validate.notEmpty(vehicleIdentificationNumber);
         LOGGER.debug("Received request for new Channel with VIN {}.");
         Channel newChannel = channels.getNextFreeChannel(vehicleIdentificationNumber);
         LOGGER.debug("New channel with identifier {} assigned to VIN {}.", newChannel.getChannelIdentifier(),
@@ -87,8 +95,7 @@ public final class Obd2Controller {
      * </p>
      *
      * @param body The message body containing the transmitted data.
-     * @param channelIdentifier The identifier of the channel to transmit to. This must be an active channel or the
-     *            call
+     * @param channelIdentifier The identifier of the channel to transmit to. This must be an active channel or the call
      *            will fail.
      */
     @RequestMapping(method = RequestMethod.POST, path = "/post")
@@ -125,10 +132,10 @@ public final class Obd2Controller {
         double gpsSpeed = 0.0;
         int satellites = 0;
 
-        for (int entryIndex = 0; entryIndex < entries.length; entryIndex++) {
-            String[] values = entries[entryIndex].split(",");
+        for (String entry : entries) {
+            String[] values = entry.split(",");
 
-            long timestamp = 0L;
+            long timestamp;
             if (values[0].startsWith("#")) {
                 lastAbsoluteTimestamp = Long.valueOf(values[0].substring(1));
                 lastAbsoluteTimestamp *= 1000L;
@@ -170,54 +177,51 @@ public final class Obd2Controller {
             } catch (IllegalArgumentException e) {
                 LOGGER.error("Unable to parse a data entry.", e);
             }
-            if (gpsTime != 0L) {
-                GpsData gpsData = new GpsData(gpsTime, latitude, longitude, altitude, gpsSpeed, satellites);
-                ret.addGpsData(gpsData);
-            }
+        }
+        if (gpsTime != 0L) {
+            GpsData gpsData = new GpsData(gpsTime, latitude, longitude, altitude, gpsSpeed, satellites);
+            ret.addGpsData(gpsData);
         }
         return ret;
     }
 
     /**
      * <p>
-     * For some reason the provided values often are the real value with an appended '0' seperated by space. For
-     * example '108 0'. This causes standard parsing to fail. This method removes the trailing ' 0' if there is one and
-     * parses the remaining value.
+     * Tries to parse a {@code String} value to a {@code long}.
      * </p>
      *
-     * @param value The string value to parse.
+     * @param value The {@code String} value to parse.
      * @return The parsed result as {@code long}.
+     * @throws NumberFormatException If the provided {@code value} is not parseable a {@code long}.
      */
     private long parseLongValue(final String value) {
-        return Long.valueOf(value.split(" ")[0]);
+        return Long.valueOf(value);
     }
 
     /**
      * <p>
-     * For some reason the provided values often are the real value with an appended '0' seperated by space. For
-     * example '108 0'. This causes standard parsing to fail. This method removes the trailing ' 0' if there is one and
-     * parses the remaining value.
+     * Tries to parse a {@code String} value to a {@code double}.
      * </p>
      *
-     * @param value The string value to parse.
+     * @param value The {@code String} value to parse.
      * @return The parsed result as {@code double}.
+     * @throws NumberFormatException If the provided {@code value} is not parseable to a {@code double}.
      */
     private double parseDoubleValue(final String value) {
-        return Double.valueOf(value.split(" ")[0]);
+        return Double.valueOf(value);
     }
 
     /**
      * <p>
-     * For some reason the provided values often are the real value with an appended '0' seperated by space. For
-     * example '108 0'. This causes standard parsing to fail. This method removes the trailing ' 0' if there is one and
-     * parses the remaining value.
+     * Tries to parse a {@code String} value to an integer.
      * </p>
      *
-     * @param value The string value to parse.
+     * @param value The {@code String} value to parse.
      * @return The parsed result as {@code int}.
+     * @throws NumberFormatException If the provided {@code value} is not parseable to an integer.
      */
     private int parseIntValue(final String value) {
-        return Integer.valueOf(value.split(" ")[0]);
+        return Integer.valueOf(value);
     }
 }
 

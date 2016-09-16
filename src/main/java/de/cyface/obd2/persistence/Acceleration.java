@@ -17,7 +17,7 @@ package de.cyface.obd2.persistence;
  * @version 1.0.0
  * @since 1.0.0
  */
-public final class Acceleration {
+final class Acceleration {
     /**
      * <p>
      * Time passed since startup of the measuring device in milliseconds.
@@ -87,5 +87,38 @@ public final class Acceleration {
      */
     public int getAz() {
         return az;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Acceleration that = (Acceleration)o;
+
+        if (timestamp != that.timestamp) {
+            return false;
+        }
+        if (ax != that.ax) {
+            return false;
+        }
+        if (ay != that.ay) {
+            return false;
+        }
+        return az == that.az;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int)(timestamp ^ (timestamp >>> 32));
+        result = 31 * result + ax;
+        result = 31 * result + ay;
+        result = 31 * result + az;
+        return result;
     }
 }

@@ -35,7 +35,7 @@ public class Channels {
 
     /**
      * <p>
-     * Creates a new completely initialized object of this class.
+     * Creates a new completely initialized object of this class, with no active channels.
      * </p>
      */
     public Channels() {
@@ -54,7 +54,7 @@ public class Channels {
      * @param vehicleIdentificationNumber The vehicle identification number for the new {@link Channel}.
      * @return The newly created {@link Channel}.
      */
-    public synchronized Channel getNextFreeChannel(final String vehicleIdentificationNumber) {
+    synchronized Channel getNextFreeChannel(final String vehicleIdentificationNumber) {
         int i = 0;
         while (activeChannels.get(i) != null) {
             i++;
@@ -65,20 +65,10 @@ public class Channels {
     }
 
     /**
-     * <p>
-     *     Closes the channel with the provided {@code channelIdentifier}.
-     * </p>
-     * @param channelIdentifier The channel identifier of the {@link Channel} to close.
-     */
-    public synchronized void closeChannel(final int channelIdentifier) {
-        activeChannels.remove(channelIdentifier);
-    }
-
-    /**
      * @param channelIdentifier The identifier of the channel to get.
      * @return The {@link Channel} for the provided {@code channelIdentifier} or {@code null} if none exists.
      */
-    public Channel getChannel(int channelIdentifier) {
+    Channel getChannel(int channelIdentifier) {
         return activeChannels.get(channelIdentifier);
     }
 }

@@ -58,7 +58,7 @@ public final class GpsData {
      * The sattelite information for this input data.
      * </p>
      */
-    private final int sattelites;
+    private final int satellites;
 
     /**
      * <p>
@@ -80,48 +80,94 @@ public final class GpsData {
         this.longitude = longitude;
         this.altitude = altitude;
         this.gpsSpeed = gpsSpeed;
-        this.sattelites = satellites;
+        this.satellites = satellites;
     }
 
     /**
      * @return The GPS time as a UTC timestamp
      */
-    public long getGpsTime() {
+    long getGpsTime() {
         return gpsTime;
     }
 
     /**
      * @return The GPS speed for this input data.
      */
-    public double getGpsSpeed() {
+    double getGpsSpeed() {
         return gpsSpeed;
     }
 
     /**
      * @return The altitude for this input data.
      */
-    public int getAltitude() {
+    int getAltitude() {
         return altitude;
     }
 
     /**
      * @return Geographic latitude as a decimal value.
      */
-    public double getLatitude() {
+    double getLatitude() {
         return latitude;
     }
 
     /**
      * @return Geographic longitude as a decimal value.
      */
-    public double getLongitude() {
+    double getLongitude() {
         return longitude;
     }
 
     /**
      * @return The satellite information for this input data.
      */
-    public int getSatellites() {
-        return sattelites;
+    int getSatellites() {
+        return satellites;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        GpsData gpsData = (GpsData)o;
+
+        if (gpsTime != gpsData.gpsTime) {
+            return false;
+        }
+        if (Double.compare(gpsData.latitude, latitude) != 0) {
+            return false;
+        }
+        if (Double.compare(gpsData.longitude, longitude) != 0) {
+            return false;
+        }
+        if (altitude != gpsData.altitude) {
+            return false;
+        }
+        if (Double.compare(gpsData.gpsSpeed, gpsSpeed) != 0) {
+            return false;
+        }
+        return satellites == gpsData.satellites;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = (int)(gpsTime ^ (gpsTime >>> 32));
+        temp = Double.doubleToLongBits(latitude);
+        result = 31 * result + (int)(temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(longitude);
+        result = 31 * result + (int)(temp ^ (temp >>> 32));
+        result = 31 * result + altitude;
+        temp = Double.doubleToLongBits(gpsSpeed);
+        result = 31 * result + (int)(temp ^ (temp >>> 32));
+        result = 31 * result + satellites;
+        return result;
     }
 }
